@@ -8,16 +8,25 @@
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <IsAotCompatible>true</IsAotCompatible>
     <InvariantGlobalization>false</InvariantGlobalization>
+    <PublishAot>true</PublishAot>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>kartchrono</ToolCommandName>
+    <ToolPackageRuntimeIdentifiers>linux-x64;linux-arm64;osx-arm64;osx-x64;win-x64;any</ToolPackageRuntimeIdentifiers>
     <RootNamespace>KartChrono.Cli</RootNamespace>
     <AssemblyName>KartChrono.Cli</AssemblyName>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>KartChrono.Cli</PackageId>
-    <ToolCommandName>kartchrono</ToolCommandName>
     <Authors>Dmitry Kurochkin</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/kudima03/kartchrono-cli</PackageProjectUrl>
+    <PackageDescription>Query and monitor KartChrono live karting timing from the terminal.</PackageDescription>
+    <PackageTags>karting;timing;cli;kartchrono</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KartChrono\KartChrono.csproj" />
     <ProjectReference Include="..\KartChrono.Abstractions\KartChrono.Abstractions.csproj" />
