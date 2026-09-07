@@ -14,7 +14,7 @@ public sealed record VersionOutputTests
 
         List<IString> lines = [];
 
-        await foreach (IString line in output.Lines)
+        await foreach (IString line in output)
         {
             lines.Add(line);
         }

@@ -12,7 +12,13 @@ public sealed record VersionOutput : IOutput
         _version = version;
     }
 
-    public IAsyncEnumerable<IString> Lines => AsyncEnumerable.Repeat(_version, 1);
+    public async IAsyncEnumerator<IString> GetAsyncEnumerator(
+        CancellationToken cancellationToken = default
+    )
+    {
+        await Task.CompletedTask;
+        yield return _version;
+    }
 
     public override int GetHashCode()
     {
