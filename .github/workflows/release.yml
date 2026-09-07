@@ -5,9 +5,6 @@ on:
     tags:
       - '*.*.*'
 
-permissions:
-  contents: write
-
 jobs:
   native-linux:
     name: Native ${{ matrix.rid }}
@@ -125,19 +122,28 @@ jobs:
     name: Publish to NuGet
     needs: [nuget]
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
     - name: Download package
       uses: actions/download-artifact@v8
       with:
         name: nupkg
         path: packages
+    - name: NuGet login
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: kudima03
     - name: Push package
-      run: dotnet nuget push "packages/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      run: dotnet nuget push "packages/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
   release:
     name: Attach binaries to release
     needs: [native-linux, native-macos, native-windows]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
     - name: Download binaries
       uses: actions/download-artifact@v8

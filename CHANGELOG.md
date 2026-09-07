@@ -17,8 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-targeted `net8.0`/`net9.0`/`net10.0` builds so the NuGet package installs on
   older supported .NET SDKs, not just the one used to build it.
 - A release workflow that builds each native binary on a matching runner, publishes a
-  single framework-dependent NuGet package, and attaches standalone binaries to the
-  GitHub release.
+  single framework-dependent NuGet package via NuGet Trusted Publishing (OIDC, no
+  stored API key), and attaches standalone binaries to the GitHub release.
 
 ### Changed
 
