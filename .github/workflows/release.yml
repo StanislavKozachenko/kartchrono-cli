@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  native:
+  native-linux:
     name: Native ${{ matrix.rid }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -20,10 +20,70 @@ jobs:
             rid: linux-x64
           - os: ubuntu-24.04-arm
             rid: linux-arm64
+    defaults:
+      run:
+        working-directory: ./src
+    steps:
+    - uses: actions/checkout@v7
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10.x.x
+    - name: Update apt package index
+      run: sudo apt-get update
+    - name: Install native toolchain
+      run: sudo apt-get install -y clang zlib1g-dev
+    - name: Publish binary
+      run: dotnet publish KartChrono.Cli -r ${{ matrix.rid }} -c Release -p:PublishAot=true --output ../publish/${{ matrix.rid }}
+    - name: Rename binary
+      run: mv ../publish/${{ matrix.rid }}/KartChrono.Cli ../publish/${{ matrix.rid }}/kartchrono
+    - name: Zip binary
+      run: zip -j ../kartchrono-${{ github.ref_name }}-${{ matrix.rid }}.zip ../publish/${{ matrix.rid }}/kartchrono
+    - name: Upload binary
+      uses: actions/upload-artifact@v7
+      with:
+        name: binary-${{ matrix.rid }}
+        path: kartchrono-*.zip
+
+  native-macos:
+    name: Native ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
           - os: macos-latest
             rid: osx-arm64
           - os: macos-13
             rid: osx-x64
+    defaults:
+      run:
+        working-directory: ./src
+    steps:
+    - uses: actions/checkout@v7
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10.x.x
+    - name: Publish binary
+      run: dotnet publish KartChrono.Cli -r ${{ matrix.rid }} -c Release -p:PublishAot=true --output ../publish/${{ matrix.rid }}
+    - name: Rename binary
+      run: mv ../publish/${{ matrix.rid }}/KartChrono.Cli ../publish/${{ matrix.rid }}/kartchrono
+    - name: Zip binary
+      run: zip -j ../kartchrono-${{ github.ref_name }}-${{ matrix.rid }}.zip ../publish/${{ matrix.rid }}/kartchrono
+    - name: Upload binary
+      uses: actions/upload-artifact@v7
+      with:
+        name: binary-${{ matrix.rid }}
+        path: kartchrono-*.zip
+
+  native-windows:
+    name: Native ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
           - os: windows-latest
             rid: win-x64
     defaults:
@@ -35,37 +95,20 @@ jobs:
       uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 10.x.x
-    - name: Install native toolchain
-      if: startsWith(matrix.os, 'ubuntu')
-      run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
-    - name: Pack
-      run: dotnet pack KartChrono.Cli -r ${{ matrix.rid }} -c Release -p:PackageVersion=${{ github.ref_name }} --output .
-    - name: Stage binary
-      shell: bash
-      run: |
-        publish="KartChrono.Cli/bin/Release/net10.0/${{ matrix.rid }}/publish"
-        mkdir -p ../artifacts
-        if [ -f "$publish/KartChrono.Cli.exe" ]; then
-          cp "$publish/KartChrono.Cli.exe" kartchrono.exe
-          7z a "../artifacts/kartchrono-${{ github.ref_name }}-${{ matrix.rid }}.zip" kartchrono.exe
-        else
-          cp "$publish/KartChrono.Cli" kartchrono
-          chmod +x kartchrono
-          tar -czf "../artifacts/kartchrono-${{ github.ref_name }}-${{ matrix.rid }}.tar.gz" kartchrono
-        fi
-    - name: Upload package
-      uses: actions/upload-artifact@v7
-      with:
-        name: nupkg-${{ matrix.rid }}
-        path: src/*.nupkg
+    - name: Publish binary
+      run: dotnet publish KartChrono.Cli -r ${{ matrix.rid }} -c Release -p:PublishAot=true --output ../publish/${{ matrix.rid }}
+    - name: Rename binary
+      run: Rename-Item -Path ..\publish\${{ matrix.rid }}\KartChrono.Cli.exe -NewName kartchrono.exe
+    - name: Zip binary
+      run: Compress-Archive -Path ..\publish\${{ matrix.rid }}\kartchrono.exe -DestinationPath ..\kartchrono-${{ github.ref_name }}-${{ matrix.rid }}.zip
     - name: Upload binary
       uses: actions/upload-artifact@v7
       with:
         name: binary-${{ matrix.rid }}
-        path: artifacts/*
+        path: kartchrono-*.zip
 
-  portable:
-    name: Portable package
+  nuget:
+    name: NuGet package
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -76,44 +119,30 @@ jobs:
       uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 10.x.x
-    - name: Pack framework-dependent fallback
-      run: dotnet pack KartChrono.Cli -r any -p:PublishAot=false -c Release -p:PackageVersion=${{ github.ref_name }} --output .
-    - name: Pack pointer package
+    - name: Pack
       run: dotnet pack KartChrono.Cli -c Release -p:PackageVersion=${{ github.ref_name }} --output .
-    - name: Upload fallback package
+    - name: Upload package
       uses: actions/upload-artifact@v7
       with:
-        name: nupkg-any
-        path: src/KartChrono.Cli.any.*.nupkg
-    - name: Upload pointer package
-      uses: actions/upload-artifact@v7
-      with:
-        name: nupkg-pointer
-        path: src/KartChrono.Cli.${{ github.ref_name }}.nupkg
+        name: nupkg
+        path: src/*.nupkg
 
   publish:
     name: Publish to NuGet
-    needs: [native, portable]
+    needs: [native-linux, native-macos, native-windows, nuget]
     runs-on: ubuntu-latest
     steps:
-    - name: Download runtime-specific packages
+    - name: Download package
       uses: actions/download-artifact@v8
       with:
-        pattern: nupkg-*
+        name: nupkg
         path: packages
-        merge-multiple: true
-    - name: Push runtime-specific packages
-      run: |
-        for package in packages/KartChrono.Cli.*-*.nupkg packages/KartChrono.Cli.any.*.nupkg; do
-          [ -e "$package" ] || continue
-          dotnet nuget push "$package" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
-        done
-    - name: Push pointer package last
-      run: dotnet nuget push "packages/KartChrono.Cli.${{ github.ref_name }}.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+    - name: Push package
+      run: dotnet nuget push "packages/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
   release:
     name: Attach binaries to release
-    needs: native
+    needs: [native-linux, native-macos, native-windows]
     runs-on: ubuntu-latest
     steps:
     - name: Download binaries
