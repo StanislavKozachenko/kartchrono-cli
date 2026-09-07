@@ -1,0 +1,62 @@
+using KartChrono.Abstractions.Output;
+using KartChrono.Abstractions.Timing;
+using KartChrono.Cli.Arguments;
+using KartChrono.Protocol;
+using KartChrono.Rendering;
+using KartChrono.Timing;
+using Pure.Primitives.Abstractions.String;
+using Pure.Primitives.Number;
+using String = Pure.Primitives.String.String;
+
+namespace KartChrono.Cli.Commands;
+
+public sealed record Command : IOutput
+{
+    private readonly IEnumerable<string> _arguments;
+
+    private readonly HttpClient _client;
+
+    public Command(HttpClient client, params IEnumerable<string> arguments)
+    {
+        _client = client;
+        _arguments = arguments;
+    }
+
+    private IAsyncEnumerable<ITrack> Directory => new Tracks(new TrackDirectory(_client));
+
+    private IString Slug => new OptionValue(new String("track"), _arguments);
+
+    private IString Kart => new OptionValue(new String("kart"), _arguments);
+
+    private IFeed Feed => new FeedOfKart(new TrackFeed(Directory, Slug), Kart);
+
+    private IOutput Chosen =>
+        new OptionPresence(new String("version"), _arguments).BoolValue
+            ? new VersionOutput(new String(Version.Text))
+        : new OptionPresence(new String("help"), _arguments).BoolValue ? new HelpOutput()
+        : new CommandName(_arguments).TextValue switch
+        {
+            "tracks" => new TracksOutput(Directory),
+            "session" => new LeaderboardOutput(new SettledFeed(Feed, new Int(1))),
+            "live" => new LeaderboardOutput(Feed),
+            "laps" => new LapsOutput(new SettledFeed(Feed, new Int(3))),
+            _ => new HelpOutput(),
+        };
+
+    public IAsyncEnumerator<IString> GetAsyncEnumerator(
+        CancellationToken cancellationToken = default
+    )
+    {
+        return Chosen.GetAsyncEnumerator(cancellationToken);
+    }
+
+    public override int GetHashCode()
+    {
+        throw new NotSupportedException();
+    }
+
+    public override string ToString()
+    {
+        throw new NotSupportedException();
+    }
+}
