@@ -2,8 +2,10 @@ version: 2
 updates:
 - package-ecosystem: nuget
   directories:
-    - "src/"
-    - "src/Tests/"
+    - "src/KartChrono.Abstractions"
+    - "src/KartChrono"
+    - "src/KartChrono.Cli"
+    - "src/Tests/KartChrono.Tests"
   schedule:
     interval: daily
 - package-ecosystem: "github-actions"
