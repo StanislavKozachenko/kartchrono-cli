@@ -125,6 +125,23 @@ public sealed record LiveFeedTests
         Assert.Equal(2, snapshots.Count);
     }
 
+    [Fact]
+    public async Task AttachesRecordedLapsToCompetitors()
+    {
+        ISessionSnapshot snapshot = await Last(
+            new Frames("snapshot.json", "binlaps.bin", "delta.json")
+        );
+
+        ICompetitor third = snapshot.Competitors.Last();
+
+        Assert.Equal("25", third.Number.TextValue);
+        Assert.Equal([0, 1, 2], third.Laps.Select(lap => lap.Number.NumberValue));
+        Assert.Equal(
+            [0, 82443, 92229],
+            third.Laps.Select(lap => lap.Milliseconds.NumberValue)
+        );
+    }
+
     private static async Task<ISessionSnapshot> Last(
         IAsyncEnumerable<ReadOnlyMemory<byte>> frames
     )

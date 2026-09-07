@@ -24,6 +24,7 @@ public sealed record LiveFeed : IFeed
     )
     {
         Dictionary<string, Dictionary<string, string>> competitors = [];
+        Dictionary<string, Dictionary<int, ILap>> laps = [];
         Dictionary<string, string> run = [];
 
         await foreach (
@@ -32,6 +33,22 @@ public sealed record LiveFeed : IFeed
         {
             if (frame.Span.StartsWith("BINLAPS:"u8))
             {
+                foreach (ILap lap in new BinaryLaps(frame))
+                {
+                    if (
+                        !laps.TryGetValue(
+                            lap.CompetitorId.TextValue,
+                            out Dictionary<int, ILap>? recorded
+                        )
+                    )
+                    {
+                        recorded = [];
+                        laps[lap.CompetitorId.TextValue] = recorded;
+                    }
+
+                    recorded[lap.Number.NumberValue] = lap;
+                }
+
                 continue;
             }
 
@@ -49,6 +66,7 @@ public sealed record LiveFeed : IFeed
             )
             {
                 competitors.Clear();
+                laps.Clear();
                 run.Clear();
             }
 
@@ -118,9 +136,19 @@ public sealed record LiveFeed : IFeed
                 new RunState(run.ToDictionary()),
                 [
                     .. competitors
-                        .Values.Select(state => new CompetitorState(
-                            state.ToDictionary(),
-                            []
+                        .Select(entry => new CompetitorState(
+                            entry.Value.ToDictionary(),
+                            laps.TryGetValue(
+                                entry.Key,
+                                out Dictionary<int, ILap>? recorded
+                            )
+                                ?
+                                [
+                                    .. recorded.Values.OrderBy(lap =>
+                                        lap.Number.NumberValue
+                                    ),
+                                ]
+                                : Array.Empty<ILap>()
                         ))
                         .OrderBy(competitor => competitor.Position.NumberValue),
                 ]
