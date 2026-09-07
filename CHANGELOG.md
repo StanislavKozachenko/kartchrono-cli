@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Replaced the `Pure.Template` boilerplate with `kartchrono-cli` project metadata.
-- Lowered the CI coverage gate to 80% and the mutation gate to 70%.
+- Lowered the CI coverage gate to 80% and the mutation gate to 60%.
 - Pointed Dependabot at the projects under `src/`.
 
 ### Removed
