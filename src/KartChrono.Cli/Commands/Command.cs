@@ -30,6 +30,16 @@ public sealed record Command : IOutput
 
     private IFeed Feed => new FeedOfKart(new TrackFeed(Directory, Slug), Kart);
 
+    private IString Period
+    {
+        get
+        {
+            IString requested = new OptionValue(new String("period"), _arguments);
+
+            return requested.TextValue.Length == 0 ? new String("today") : requested;
+        }
+    }
+
     private IOutput Chosen =>
         new OptionPresence(new String("version"), _arguments).BoolValue
             ? new VersionOutput(new String(Version.Text))
@@ -40,6 +50,9 @@ public sealed record Command : IOutput
             "session" => new LeaderboardOutput(new SettledFeed(Feed, new Int(1))),
             "live" => new LeaderboardOutput(Feed),
             "laps" => new LapsOutput(new SettledFeed(Feed, new Int(3))),
+            "records" => new RecordsOutput(
+                new Records(new RecordsPage(_client, Slug, Period))
+            ),
             _ => new HelpOutput(),
         };
 
