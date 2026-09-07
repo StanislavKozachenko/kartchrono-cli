@@ -1,21 +1,38 @@
 using System.Diagnostics.CodeAnalysis;
-using KartChrono.Abstractions.Output;
-using KartChrono.Rendering;
+using KartChrono.Cli.Commands;
 using Pure.Primitives.Abstractions.String;
-using String = Pure.Primitives.String.String;
 
 namespace KartChrono.Cli;
 
 [ExcludeFromCodeCoverage]
 internal static class Program
 {
-    private static async Task Main()
+    private static async Task<int> Main(string[] args)
     {
-        IOutput output = new VersionOutput(new String("0.1.0"));
+        using HttpClient client = new HttpClient();
 
-        await foreach (IString line in output)
+        try
         {
-            Console.WriteLine(line.TextValue);
+            await foreach (IString line in new Command(client, args))
+            {
+                Console.WriteLine(line.TextValue);
+            }
+
+            return 0;
+        }
+        catch (ArgumentException error)
+        {
+            await Console.Error.WriteLineAsync(error.Message);
+            return 1;
+        }
+        catch (HttpRequestException error)
+        {
+            await Console.Error.WriteLineAsync(error.Message);
+            return 1;
+        }
+        catch (OperationCanceledException)
+        {
+            return 0;
         }
     }
 }
