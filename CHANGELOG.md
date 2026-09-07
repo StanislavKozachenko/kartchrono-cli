@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `kartchrono` CLI: `tracks`, `session`, `live`, `laps` and `records` commands over the
+  KartChrono WebSocket and archive endpoints, with `--track`, `--kart`, `--period`,
+  `--json`, `--help` and `--version`.
+- Native AOT packaging as a `dotnet tool` for `linux-x64`, `linux-arm64`, `osx-arm64`,
+  `osx-x64` and `win-x64`, with a framework-dependent fallback for every other platform.
+- A release workflow that builds each native binary on a matching runner, publishes the
+  runtime-specific packages before the pointer package, and attaches standalone binaries
+  to the GitHub release.
+
 ### Changed
 
 - Replaced the `Pure.Template` boilerplate with `kartchrono-cli` project metadata.
