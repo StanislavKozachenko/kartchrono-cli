@@ -1,19 +1,75 @@
-# Pure.Template
+# kartchrono-cli
 
-Project template for new **Pure** ecosystem NuGet libraries.
+Query and monitor [KartChrono](https://kartchrono.com) live karting timing from your terminal.
 
+[![.NET build & test](https://github.com/kudima03/kartchrono-cli/actions/workflows/build-and-test.yml/badge.svg?branch=main)](https://github.com/kudima03/kartchrono-cli/actions/workflows/build-and-test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Overview
 
-`Pure.Template` is the canonical starting point for new Pure ecosystem packages. It ships with a pre-configured project structure, `.editorconfig`, GitHub Actions workflows for build/test and NuGet publish, and standard `CODEOWNERS` and `CODE_OF_CONDUCT.md` files — so a new library can be bootstrapped consistently without manually copying configuration from another repo.
+KartChrono is a karting timing system used by ~54 tracks across Europe. Each track publishes a
+live scoreboard on its own subdomain, fed by a WebSocket stream. `kartchrono` is a Native AOT
+command-line client for that stream: it lists tracks, prints a session snapshot, follows a
+leaderboard live, and shows lap-by-lap sector times for a single kart — without a browser.
 
-## What's included
+Everything is passed as an argument, so the tool composes with `grep`, `jq`, `watch` and shell
+pipelines.
 
-| Item | Description |
-|------|-------------|
-| `.editorconfig` | Shared code style rules for the Pure ecosystem |
-| `CODEOWNERS` | Default ownership configuration |
-| `CODE_OF_CONDUCT.md` | Contributor code of conduct |
-| `.github/workflows/build-and-test.yml` | CI workflow: restore, build, and test on every push |
-| `.github/workflows/publish-nuget.yml` | Publish workflow: triggered on git tag push |
+## Installation
+
+```shell
+dotnet tool install -g KartChrono.Cli
+```
+
+Native AOT binaries are published for `linux-x64`, `linux-arm64`, `osx-arm64`, `osx-x64` and
+`win-x64`; other platforms fall back to a portable build that needs the .NET runtime. The
+correct one is selected automatically. Standalone binaries are also attached to each
+[release](https://github.com/kudima03/kartchrono-cli/releases).
+
+## Usage
+
+```shell
+kartchrono tracks                                   # list every connected track
+kartchrono session --track mayak                    # one snapshot of the current run, then exit
+kartchrono live    --track mayak                    # follow the leaderboard
+kartchrono live    --track mayak --kart 25          # follow one kart
+kartchrono laps    --track mayak --kart 25          # lap-by-lap with sector times
+kartchrono records --track mayak --period week      # best laps from the archive
+```
+
+| Option | Description |
+|---|---|
+| `--track <slug>` | Track subdomain, as listed by `kartchrono tracks` |
+| `--kart <number>` | Restrict output to a single kart number |
+| `--period <today\|week\|month>` | Range for `records` |
+| `--json` | Emit JSON instead of a table |
+| `--timeout <seconds>` | Stop after the given time |
+| `--no-color` | Disable ANSI colour |
+| `--help`, `--version` | |
+
+## Design
+
+`kartchrono-cli` follows the [Pure](https://github.com/kudima03/Pure) ecosystem conventions:
+
+- Every type is a `sealed record` implementing exactly one interface.
+- Behaviour lives in property getters — there are no methods beyond what the language forces.
+- Values are `IString`, `INumber<T>` and `IBool` from
+  [`Pure.Primitives.Abstractions`](https://github.com/kudima03/Pure.Primitives.Abstractions),
+  never raw primitives.
+- Everything is lazy and immutable; nothing is cached.
+- `IAsyncEnumerable<T>` carries every I/O-backed sequence — socket frames, session snapshots
+  and rendered output lines.
+
+## Building
+
+All `dotnet` commands run from `./src`:
+
+```shell
+dotnet restore
+dotnet build --no-restore -warnaserror
+dotnet test --no-build --collect:"XPlat Code Coverage"
+```
+
+## License
+
+MIT — see [LICENSE](LICENSE).
