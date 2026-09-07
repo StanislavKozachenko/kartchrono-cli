@@ -8,7 +8,6 @@
     <IsAotCompatible>true</IsAotCompatible>
     <IsPackable>false</IsPackable>
     <RootNamespace>KartChrono</RootNamespace>
-    <AssemblyName>KartChrono</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Pure.Primitives" Version="3.6.5" />
