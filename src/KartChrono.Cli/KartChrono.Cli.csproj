@@ -11,6 +11,9 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>kartchrono</ToolCommandName>
     <RootNamespace>KartChrono.Cli</RootNamespace>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <!-- No version has been published yet; uncomment once the first tag ships. -->
+    <!-- <PackageValidationBaselineVersion>0.1.0</PackageValidationBaselineVersion> -->
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>KartChrono.Cli</PackageId>

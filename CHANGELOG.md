@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A release workflow that builds each native binary on a matching runner, publishes a
   single framework-dependent NuGet package via NuGet Trusted Publishing (OIDC, no
   stored API key), and attaches standalone binaries to the GitHub release.
+- Package validation (`EnablePackageValidation`), ready to enforce API compatibility
+  against a baseline once the first version is published.
 
 ### Changed
 
