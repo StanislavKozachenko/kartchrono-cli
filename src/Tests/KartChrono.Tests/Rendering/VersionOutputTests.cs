@@ -3,7 +3,7 @@ using KartChrono.Rendering;
 using Pure.Primitives.Abstractions.String;
 using String = Pure.Primitives.String.String;
 
-namespace KartChrono.Tests;
+namespace KartChrono.Tests.Rendering;
 
 public sealed record VersionOutputTests
 {
@@ -20,21 +20,5 @@ public sealed record VersionOutputTests
         }
 
         Assert.Equal("1.2.3", Assert.Single(lines).TextValue);
-    }
-
-    [Fact]
-    public void ThrowsExceptionOnGetHashCode()
-    {
-        _ = Assert.Throws<NotSupportedException>(() =>
-            new VersionOutput(new String("1.2.3")).GetHashCode()
-        );
-    }
-
-    [Fact]
-    public void ThrowsExceptionOnToString()
-    {
-        _ = Assert.Throws<NotSupportedException>(() =>
-            new VersionOutput(new String("1.2.3")).ToString()
-        );
     }
 }

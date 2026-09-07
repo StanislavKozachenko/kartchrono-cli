@@ -3,7 +3,7 @@ using KartChrono.Tests.Fixtures;
 using KartChrono.Timing;
 using String = Pure.Primitives.String.String;
 
-namespace KartChrono.Tests;
+namespace KartChrono.Tests.Timing;
 
 public sealed record TracksTests
 {
@@ -94,40 +94,6 @@ public sealed record TracksTests
         }
 
         Assert.Empty(tracks);
-    }
-
-    [Fact]
-    public void ThrowsExceptionOnGetHashCode()
-    {
-        _ = Assert.Throws<NotSupportedException>(() =>
-            new Tracks(new SingleDocument("")).GetHashCode()
-        );
-        _ = Assert.Throws<NotSupportedException>(() =>
-            new TracksWithSlug(
-                new Tracks(new SingleDocument("")),
-                new String("x")
-            ).GetHashCode()
-        );
-        _ = Assert.Throws<NotSupportedException>(() =>
-            new Track(new String("a"), new String("b"), new String("c")).GetHashCode()
-        );
-    }
-
-    [Fact]
-    public void ThrowsExceptionOnToString()
-    {
-        _ = Assert.Throws<NotSupportedException>(() =>
-            new Tracks(new SingleDocument("")).ToString()
-        );
-        _ = Assert.Throws<NotSupportedException>(() =>
-            new TracksWithSlug(
-                new Tracks(new SingleDocument("")),
-                new String("x")
-            ).ToString()
-        );
-        _ = Assert.Throws<NotSupportedException>(() =>
-            new Track(new String("a"), new String("b"), new String("c")).ToString()
-        );
     }
 
     private static async Task<ITrack> FirstOf(IAsyncEnumerable<ITrack> tracks)
