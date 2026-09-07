@@ -24,6 +24,6 @@
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Fixtures\**" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Fixtures\**" Exclude="Fixtures\**\*.cs" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
