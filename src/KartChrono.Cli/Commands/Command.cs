@@ -3,6 +3,7 @@ using KartChrono.Abstractions.Timing;
 using KartChrono.Cli.Arguments;
 using KartChrono.Protocol;
 using KartChrono.Rendering;
+using KartChrono.Rendering.Json;
 using KartChrono.Timing;
 using Pure.Primitives.Abstractions.String;
 using Pure.Primitives.Number;
@@ -30,6 +31,8 @@ public sealed record Command : IOutput
 
     private IFeed Feed => new FeedOfKart(new TrackFeed(Directory, Slug), Kart);
 
+    private bool AsJson => new OptionPresence(new String("json"), _arguments).BoolValue;
+
     private IString Period
     {
         get
@@ -46,13 +49,17 @@ public sealed record Command : IOutput
         : new OptionPresence(new String("help"), _arguments).BoolValue ? new HelpOutput()
         : new CommandName(_arguments).TextValue switch
         {
-            "tracks" => new TracksOutput(Directory),
-            "session" => new LeaderboardOutput(new SettledFeed(Feed, new Int(1))),
-            "live" => new LeaderboardOutput(Feed),
-            "laps" => new LapsOutput(new SettledFeed(Feed, new Int(3))),
-            "records" => new RecordsOutput(
-                new Records(new RecordsPage(_client, Slug, Period))
-            ),
+            "tracks" => AsJson ? new TracksJson(Directory) : new TracksOutput(Directory),
+            "session" => AsJson
+                ? new SessionJson(new SettledFeed(Feed, new Int(1)))
+                : new LeaderboardOutput(new SettledFeed(Feed, new Int(1))),
+            "live" => AsJson ? new SessionJson(Feed) : new LeaderboardOutput(Feed),
+            "laps" => AsJson
+                ? new LapsJson(new SettledFeed(Feed, new Int(3)))
+                : new LapsOutput(new SettledFeed(Feed, new Int(3))),
+            "records" => AsJson
+                ? new RecordsJson(new Records(new RecordsPage(_client, Slug, Period)))
+                : new RecordsOutput(new Records(new RecordsPage(_client, Slug, Period))),
             _ => new HelpOutput(),
         };
 
