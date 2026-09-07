@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--json`, `--help` and `--version`.
 - Native AOT packaging as a `dotnet tool` for `linux-x64`, `linux-arm64`, `osx-arm64`,
   `osx-x64` and `win-x64`, with a framework-dependent fallback for every other platform.
+- Multi-targeted `net8.0`/`net9.0`/`net10.0` builds so the NuGet package installs on
+  older supported .NET SDKs, not just the one used to build it.
 - A release workflow that builds each native binary on a matching runner, publishes a
   single framework-dependent NuGet package, and attaches standalone binaries to the
   GitHub release.

@@ -34,7 +34,7 @@ jobs:
     - name: Install native toolchain
       run: sudo apt-get install -y clang zlib1g-dev
     - name: Publish binary
-      run: dotnet publish KartChrono.Cli -r ${{ matrix.rid }} -c Release -p:PublishAot=true --output ../publish/${{ matrix.rid }}
+      run: dotnet publish KartChrono.Cli -f net10.0 -r ${{ matrix.rid }} -c Release -p:PublishAot=true --output ../publish/${{ matrix.rid }}
     - name: Rename binary
       run: mv ../publish/${{ matrix.rid }}/KartChrono.Cli ../publish/${{ matrix.rid }}/kartchrono
     - name: Zip binary
@@ -66,7 +66,7 @@ jobs:
       with:
         dotnet-version: 10.x.x
     - name: Publish binary
-      run: dotnet publish KartChrono.Cli -r ${{ matrix.rid }} -c Release -p:PublishAot=true --output ../publish/${{ matrix.rid }}
+      run: dotnet publish KartChrono.Cli -f net10.0 -r ${{ matrix.rid }} -c Release -p:PublishAot=true --output ../publish/${{ matrix.rid }}
     - name: Rename binary
       run: mv ../publish/${{ matrix.rid }}/KartChrono.Cli ../publish/${{ matrix.rid }}/kartchrono
     - name: Zip binary
@@ -78,14 +78,8 @@ jobs:
         path: kartchrono-*.zip
 
   native-windows:
-    name: Native ${{ matrix.rid }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            rid: win-x64
+    name: Native win-x64
+    runs-on: windows-latest
     defaults:
       run:
         working-directory: ./src
@@ -96,15 +90,15 @@ jobs:
       with:
         dotnet-version: 10.x.x
     - name: Publish binary
-      run: dotnet publish KartChrono.Cli -r ${{ matrix.rid }} -c Release -p:PublishAot=true --output ../publish/${{ matrix.rid }}
+      run: dotnet publish KartChrono.Cli -f net10.0 -r win-x64 -c Release -p:PublishAot=true --output ../publish/win-x64
     - name: Rename binary
-      run: Rename-Item -Path ..\publish\${{ matrix.rid }}\KartChrono.Cli.exe -NewName kartchrono.exe
+      run: Rename-Item -Path ..\publish\win-x64\KartChrono.Cli.exe -NewName kartchrono.exe
     - name: Zip binary
-      run: Compress-Archive -Path ..\publish\${{ matrix.rid }}\kartchrono.exe -DestinationPath ..\kartchrono-${{ github.ref_name }}-${{ matrix.rid }}.zip
+      run: Compress-Archive -Path ..\publish\win-x64\kartchrono.exe -DestinationPath ..\kartchrono-${{ github.ref_name }}-win-x64.zip
     - name: Upload binary
       uses: actions/upload-artifact@v7
       with:
-        name: binary-${{ matrix.rid }}
+        name: binary-win-x64
         path: kartchrono-*.zip
 
   nuget:
@@ -129,7 +123,7 @@ jobs:
 
   publish:
     name: Publish to NuGet
-    needs: [native-linux, native-macos, native-windows, nuget]
+    needs: [nuget]
     runs-on: ubuntu-latest
     steps:
     - name: Download package
