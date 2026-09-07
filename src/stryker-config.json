@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/stryker-mutator/stryker-net/master/src/Stryker.Core/Stryker.Core/Schemas/stryker-config.json",
+  "stryker-config": {
+    "solution": "KartChrono.sln",
+    "project-info": {
+      "name": "github.com/kudima03/kartchrono-cli"
+    },
+    "reporters": ["progress", "html"],
+    "mutation-level": "Complete"
+  }
+}
