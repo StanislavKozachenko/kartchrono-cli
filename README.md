@@ -69,7 +69,3 @@ dotnet restore
 dotnet build --no-restore -warnaserror
 dotnet test --no-build --collect:"XPlat Code Coverage"
 ```
-
-## License
-
-MIT — see [LICENSE](LICENSE).
