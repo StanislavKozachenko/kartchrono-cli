@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The release workflow now gates every build/publish job on the existing
   `.NET build & test` workflow (format, csharpier, tests, coverage and mutation
   gates), called as a reusable workflow, instead of publishing an untested tag.
+- `ICompetitor.GapMilliseconds`/`DifferenceMilliseconds` are now `Gap`/`Difference`,
+  each paired with a `GapIsTime`/`DifferenceIsTime` flag, since a negative value
+  encodes laps or sectors behind rather than a time.
 
 ## [0.1.0] - 2026-09-08
 

@@ -1,4 +1,5 @@
 using KartChrono.Protocol;
+using Pure.Primitives.Abstractions.Bool;
 using Pure.Primitives.Abstractions.Char;
 using Pure.Primitives.Abstractions.Number;
 using Pure.Primitives.Abstractions.String;
@@ -15,6 +16,7 @@ public sealed record FieldReaderTests
         ["1"] = "42",
         ["3"] = "Staff",
         ["9"] = "not a number",
+        ["14"] = "-1",
     };
 
     [Theory]
@@ -69,5 +71,16 @@ public sealed record FieldReaderTests
         INumber<long> scaled = new ScaledNumber(new FieldNumber(Fields, "1"), factor);
 
         Assert.Equal(expected, scaled.NumberValue);
+    }
+
+    [Theory]
+    [InlineData("1", true)]
+    [InlineData("14", false)]
+    [InlineData("404", true)]
+    public void TakesSignOfNumber(string key, bool expected)
+    {
+        IBool isNonNegative = new IsNonNegative(new FieldNumber(Fields, key));
+
+        Assert.Equal(expected, isNonNegative.BoolValue);
     }
 }

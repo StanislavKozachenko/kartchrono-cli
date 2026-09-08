@@ -1,3 +1,4 @@
+using Pure.Primitives.Abstractions.Bool;
 using Pure.Primitives.Abstractions.Number;
 using Pure.Primitives.Abstractions.String;
 
@@ -19,9 +20,13 @@ public interface ICompetitor
 
     public INumber<int> LastLapMilliseconds { get; }
 
-    public INumber<int> GapMilliseconds { get; }
+    public INumber<int> Gap { get; }
 
-    public INumber<int> DifferenceMilliseconds { get; }
+    public IBool GapIsTime { get; }
+
+    public INumber<int> Difference { get; }
+
+    public IBool DifferenceIsTime { get; }
 
     public INumber<int> PitsCount { get; }
 

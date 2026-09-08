@@ -60,6 +60,27 @@ public sealed record LiveFeedTests
             [18545, 17539, 13603, 0, 0],
             leader.LastSectors.Select(sector => sector.NumberValue)
         );
+        Assert.Equal(0, leader.Gap.NumberValue);
+        Assert.True(leader.GapIsTime.BoolValue);
+        Assert.Equal(0, leader.Difference.NumberValue);
+        Assert.True(leader.DifferenceIsTime.BoolValue);
+    }
+
+    [Fact]
+    public async Task DistinguishesLapsBehindFromTimeBehind()
+    {
+        ISessionSnapshot snapshot = await Last(
+            new Frames("snapshot.json", "laps-behind.json")
+        );
+
+        ICompetitor competitor = snapshot.Competitors.Single(candidate =>
+            candidate.Number.TextValue == "25"
+        );
+
+        Assert.Equal(-1, competitor.Difference.NumberValue);
+        Assert.False(competitor.DifferenceIsTime.BoolValue);
+        Assert.Equal(-2, competitor.Gap.NumberValue);
+        Assert.False(competitor.GapIsTime.BoolValue);
     }
 
     [Fact]

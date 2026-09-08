@@ -1,4 +1,5 @@
 using KartChrono.Abstractions.Timing;
+using Pure.Primitives.Abstractions.Bool;
 using Pure.Primitives.Abstractions.Number;
 using Pure.Primitives.Abstractions.String;
 
@@ -33,10 +34,13 @@ public sealed record CompetitorState : ICompetitor
     public INumber<int> LastLapMilliseconds =>
         new FieldNumber(_fields, Field.LastLapTime);
 
-    public INumber<int> GapMilliseconds => new FieldNumber(_fields, Field.Gap);
+    public INumber<int> Gap => new FieldNumber(_fields, Field.Gap);
 
-    public INumber<int> DifferenceMilliseconds =>
-        new FieldNumber(_fields, Field.Difference);
+    public IBool GapIsTime => new IsNonNegative(Gap);
+
+    public INumber<int> Difference => new FieldNumber(_fields, Field.Difference);
+
+    public IBool DifferenceIsTime => new IsNonNegative(Difference);
 
     public INumber<int> PitsCount => new FieldNumber(_fields, Field.PitsCount);
 
