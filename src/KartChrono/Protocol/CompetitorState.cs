@@ -2,6 +2,7 @@ using KartChrono.Abstractions.Timing;
 using Pure.Primitives.Abstractions.Bool;
 using Pure.Primitives.Abstractions.Number;
 using Pure.Primitives.Abstractions.String;
+using Pure.Primitives.Number.Operations;
 
 namespace KartChrono.Protocol;
 
@@ -36,11 +37,11 @@ public sealed record CompetitorState : ICompetitor
 
     public INumber<int> Gap => new FieldNumber(_fields, Field.Gap);
 
-    public IBool GapIsTime => new IsNonNegative(Gap);
+    public IBool GapIsTime => new IsNonNegativeCondition<int>(Gap);
 
     public INumber<int> Difference => new FieldNumber(_fields, Field.Difference);
 
-    public IBool DifferenceIsTime => new IsNonNegative(Difference);
+    public IBool DifferenceIsTime => new IsNonNegativeCondition<int>(Difference);
 
     public INumber<int> PitsCount => new FieldNumber(_fields, Field.PitsCount);
 
